@@ -4,7 +4,7 @@
   "description": "",
   "main": "app",
   "scripts": {
-    "start": "nodemon --exec ts-node-dev src/app.ts",
+    "start": "nodemon --exec ts-node-dev src/app",
     "test": "echo \"Error: no test specified\" && exit 1",
     "lint": "eslint -c .eslintrc.js --ext .ts src"
   },
@@ -13,12 +13,14 @@
   "dependencies": {
     "@types/mongodb": "^3.6.17",
     "body-parser": "^1.19.0",
+    "config-plus": "0.0.4",
     "dotenv": "^10.0.0",
     "express": "^4.17.1",
-    "express-ext": "^0.1.10",
+    "express-ext": "^0.1.11",
+    "logger-core": "^0.1.3",
     "mongodb": "^3.6.11",
-    "mongodb-extension": "^0.1.7",
-    "onecore": "^0.0.20",
+    "mongodb-extension": "^0.1.8",
+    "onecore": "^0.0.22",
     "xvalidators": "^0.0.1"
   },
   "devDependencies": {
