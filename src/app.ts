@@ -5,7 +5,7 @@ import express from 'express';
 import http from 'http';
 import { connectToDb } from 'mongodb-extension';
 import { config, env } from './config';
-import { createContext } from './context';
+import { useContext } from './context';
 import { route } from './route';
 
 dotenv.config();
@@ -15,9 +15,9 @@ const app = express();
 app.use(json());
 
 connectToDb(`${conf.mongo.uri}`, `${conf.mongo.db}`).then(db => {
-  const ctx = createContext(db, conf);
+  const ctx = useContext(db, conf);
   route(app, ctx);
   http.createServer(app).listen(conf.port, () => {
     console.log('Start mongo server at port ' + conf.port);
   });
-});
+}).catch(err => console.log('Cannot connect to mongo: ' + err));

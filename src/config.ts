@@ -16,8 +16,13 @@ export const config = {
 export const env = {
   dev: {
     port: 8082,
-    db: {
+    mongo: {
       uri: 'mongodb://localhost:27017'
     }
+  },
+  sit: {
+    log: {
+      level: 'error'
+    },
   }
 };
