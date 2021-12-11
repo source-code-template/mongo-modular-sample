@@ -4,12 +4,12 @@ import dotenv from 'dotenv';
 import express from 'express';
 import http from 'http';
 import { connectToDb } from 'mongodb-extension';
-import { config } from './config';
+import { config, env } from './config';
 import { createContext } from './context';
 import { route } from './route';
 
 dotenv.config();
-const conf = merge(config, process.env);
+const conf = merge(config, process.env, env, process.env.ENV);
 
 const app = express();
 app.use(json());

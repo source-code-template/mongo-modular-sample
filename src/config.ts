@@ -12,3 +12,12 @@ export const config = {
     db: 'masterdata'
   }
 };
+
+export const env = {
+  dev: {
+    port: 8082,
+    db: {
+      uri: 'mongodb://localhost:27017'
+    }
+  }
+};
