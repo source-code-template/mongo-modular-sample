@@ -1,8 +1,8 @@
 import { Db } from 'mongodb';
 import { Repository } from 'mongodb-extension';
-import { User, userModel } from './user';
+import { User, userModel, UserRepository } from './user';
 
-export class MongoUserRepository extends Repository<User, string> {
+export class MongoUserRepository extends Repository<User, string> implements UserRepository {
   constructor(db: Db) {
     super(db, 'users', userModel.attributes);
   }
