@@ -19,7 +19,7 @@
     "express-ext": "^0.1.11",
     "logger-core": "^0.1.3",
     "mongodb": "^3.6.11",
-    "mongodb-extension": "^0.1.8",
+    "mongodb-extension": "^0.1.9",
     "onecore": "^0.0.22",
     "xvalidators": "^0.0.1"
   },
