@@ -1,11 +1,11 @@
 import { Db } from 'mongodb';
 import { buildQuery, SearchBuilder } from 'mongodb-extension';
 import { User, UserFilter, userModel, UserService } from './user';
-import { UserController } from './UserController';
+import { UserController } from './user-controller';
 export * from './user';
 export { UserController };
 
-import { MongoUserService } from './MongoUserService';
+import { MongoUserService } from './mongo-user-service';
 
 export function useUser(db: Db): UserService {
   const builder = new SearchBuilder<User, UserFilter>(db, 'users', buildQuery, userModel.attributes);
