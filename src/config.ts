@@ -1,5 +1,12 @@
 export const config = {
   port: 8080,
+  secure: false,
+  allow: {
+    origin: '*',
+    credentials: 'true',
+    methods: 'GET,PUT,POST,DELETE,OPTIONS,PATCH',
+    headers: '*'
+  },
   log: {
     level: 'info',
     map: {
@@ -7,22 +14,32 @@ export const config = {
       msg: 'message'
     }
   },
+  middleware: {
+    log: true,
+    skips: 'health,log,middleware',
+    request: 'request',
+    response: 'response',
+    status: 'status',
+    size: 'size'
+  },
   mongo: {
-    uri: 'mongodb+srv://dbUser:Demoaccount1@projectdemo.g0lah.mongodb.net',
+    uri: 'mongodb://localhost:27017',
     db: 'masterdata'
   }
 };
 
 export const env = {
-  dev: {
-    port: 8082,
+  sit: {
     mongo: {
-      uri: 'mongodb://localhost:27017'
+      db: 'masterdata_sit',
     }
   },
-  sit: {
+  prd: {
     log: {
       level: 'error'
     },
+    middleware: {
+      log: false
+    }
   }
 };
