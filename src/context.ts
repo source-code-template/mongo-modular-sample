@@ -1,10 +1,12 @@
 import { HealthController, LogController, Logger, Middleware, MiddlewareController, resources } from 'express-ext';
 import { Db } from 'mongodb';
 import { MongoChecker } from 'mongodb-extension';
+import { check } from 'types-validation';
 import { createValidator } from 'xvalidators';
 import { UserController, useUserController } from './user';
 
 resources.createValidator = createValidator;
+resources.check = check;
 
 export interface ApplicationContext {
   health: HealthController;

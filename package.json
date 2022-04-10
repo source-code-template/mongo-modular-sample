@@ -1,5 +1,5 @@
 {
-  "name": "mongo-rest-api-ts",
+  "name": "mongo-modular-sample",
   "version": "1.0.0",
   "description": "",
   "main": "app",
@@ -19,6 +19,7 @@
     "mongodb": "3.7.3",
     "mongodb-extension": "^0.1.9",
     "onecore": "^0.0.28",
+    "types-validation": "^0.0.2",
     "xvalidators": "^0.0.4"
   },
   "devDependencies": {
