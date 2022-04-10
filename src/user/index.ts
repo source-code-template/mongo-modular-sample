@@ -13,11 +13,11 @@ export class UserManager extends Manager<User, string, UserFilter> implements Us
     super(search, repository);
   }
 }
-export function useUser(db: Db): UserService {
+export function useUserService(db: Db): UserService {
   const builder = new SearchBuilder<User, UserFilter>(db, 'users', buildQuery, userModel);
   const repository = new MongoUserRepository(db);
   return new UserManager(builder.search, repository);
 }
 export function useUserController(log: Log, db: Db): UserController {
-  return new UserController(log, useUser(db));
+  return new UserController(log, useUserService(db));
 }

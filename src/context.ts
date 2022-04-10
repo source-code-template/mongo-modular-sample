@@ -15,7 +15,6 @@ export interface ApplicationContext {
 export function useContext(db: Db, logger: Logger, midLogger: Middleware): ApplicationContext {
   const log = new LogController(logger);
   const middleware = new MiddlewareController(midLogger);
-
   const mongoChecker = new MongoChecker(db);
   const health = new HealthController([mongoChecker]);
 
