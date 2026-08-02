@@ -1,247 +1,736 @@
 # mongo-modular-sample
 
-## Architecture
-### Architecture
-![Architecture](https://camo.githubusercontent.com/c17d4dfaab39cf7223f7775c9e973bb936e4169e8bd0011659e83cec755c8f26/68747470733a2f2f63646e2d696d616765732d312e6d656469756d2e636f6d2f6d61782f3830302f312a42526b437272622d5f417637395167737142556b48672e706e67)
+A simple modular RESTful microservice built with [**Express**](https://www.npmjs.com/package/express), [**MongoDB**](https://www.npmjs.com/package/mongodb), and the [**core-ts**](https://github.com/core-ts) ecosystem.
 
-### Architecture with standard features: config, health check, logging, middleware log tracing, data validation
-![Architecture with standard features: config, health check, logging, middleware log tracing, data validation](https://camo.githubusercontent.com/fa1158e7f94bf96e09aef42fcead23366839baf71190133d5df10f3006b2e041/68747470733a2f2f63646e2d696d616765732d312e6d656469756d2e636f6d2f6d61782f3830302f312a6d494e3344556569365676316c755a376747727655412e706e67)
+This project demonstrates how to build clean, lightweight, and maintainable microservices without relying on heavy frameworks or decorators. It follows a layered architecture with clear separation between controllers, use cases, repositories, and models.
 
-### Search users: Support both GET and POST 
+Unlike the more opinionated samples, this project keeps the request-processing flow explicit, making it an excellent starting point for learning how the Core TS libraries work together.
+
+---
+
+# Features
+
+- Modular project structure
+- RESTful CRUD APIs
+- Configuration management
+- Structured logging
+- Health check endpoint
+- Localization support
+- Request validation
+- Generic CRUD services
+- Generic MongoDB repository
+- MongoDB support
+- Express 5 compatible
+
+---
+
+# Architecture
+
+![Architecture](https://cdn-images-1.medium.com/max/800/1*JDYTlK00yg0IlUjZ9-sp7Q.png)
+
+Business logic is independent of the MongoDB driver. Repositories depend on the generic `DB` abstraction provided by [**sql-core**](https://www.npmjs.com/package/sql-core).
+
+```text
+   HTTP Request
+         │
+         ▼
+ Express Controller
+         │
+         ▼
+   Service Layer
+         │
+         ▼
+  Repository Layer
+         │
+         ▼
+    mongodb-kit
+         │
+         ▼
+      MongoDB
+```
+
+---
+
+# Technology Stack
+
+- TypeScript
+- Node.js
+- Express 5
+- MongoDB
+
+Core TS libraries:
+
+- [config-plus](https://www.npmjs.com/package/config-plus)
+- [logger-core](https://www.npmjs.com/package/logger-core)
+- [middleware-logging](https://www.npmjs.com/package/middleware-logging)
+- [express-core-web](https://www.npmjs.com/package/express-core-web)
+- [types-validation](https://www.npmjs.com/package/types-validation)
+- [validation-core](https://www.npmjs.com/package/validation-core)
+- [mongodb-kit](https://www.npmjs.com/package/mongodb-kit)
+- [onecore](https://www.npmjs.com/package/onecore)
+
+---
+
+# Project Structure
+
+```text
+src
+│
+├── app.ts                 # Application bootstrap
+├── config.ts              # Application configuration
+├── context.ts             # Dependency composition
+├── route.ts               # Route registration
+│
+├── resources/             # Localization resources
+│
+└── user/
+    ├── controller.ts
+    ├── service.ts
+    ├── repository.ts
+    ├── user.ts
+    └── index.ts
+```
+
+Each business feature is organized into its own module, making the project easy to extend and maintain.
+
+---
+
+# Layered Architecture
+
+## Controller
+
+Controllers are responsible for:
+
+- Receiving HTTP requests
+- Parsing request parameters
+- Validating input
+- Calling business services
+- Returning HTTP responses
+
+Business logic remains inside the use case layer.
+
+---
+
+## Service
+
+The service layer contains application business logic.
+
+Most CRUD functionality is inherited from reusable generic implementations provided by **onecore**, allowing services to stay small and focused.
+
+```ts
+export class UserUseCase
+    extends UseCase<User, string, UserFilter> implements UserService
+```
+
+---
+
+## Repository
+
+Responsible for database access.
+
+```ts
+export class MongoUserRepository extends Repository<User, string, UserFilter> implements UserRepository {
+  constructor(db: Db) {
+    super(db, "users", userModel)
+  }
+}
+```
+
+Each repository extends reusable Repository implementations provided by [**mongodb-kit**](https://www.npmjs.com/package/mongodb-kit), requiring only:
+
+- Mongo Database
+- Collection name
+- Entity model
+
+Everything else is inherited from [**mongodb-kit**](https://www.npmjs.com/package/mongodb-kit).
+
+Custom queries can easily be added when needed.
+
+This greatly reduces boilerplate while keeping the repository extensible for custom queries.
+
+---
+
+## Model
+
+Models define:
+
+- Entity structure
+- Validation rules
+- Metadata
+
+Validation rules are centralized using [**validation-core**](https://www.npmjs.com/package/validation-core), keeping controllers concise and consistent.
+
+---
+
+# Dependency Composition
+
+Dependencies are wired explicitly rather than using a dependency injection framework.
+
+```text
+  MongoDB
+    │
+    ▼
+Repository
+    │
+    ▼
+ Service
+    │
+    ▼
+Controller
+```
+
+All dependencies are created in `context.ts`, serving as the application's composition root.
+
+---
+
+# Request Processing Flow
+
+Unlike more abstract samples, this project keeps the HTTP flow explicit.
+
+```text
+HTTP Request
+      │
+      ▼
+ Controller
+      │
+      ▼
+Parse Request
+      │
+      ▼
+Validate Model
+      │
+      ▼
+   Service
+      │
+      ▼
+  Repository
+      │
+      ▼
+    MongoDB
+      │
+      ▼
+HTTP Response
+```
+
+This makes the project particularly useful for developers learning the Core TS ecosystem.
+
+---
+
+# Localization
+
+Validation and application messages support multiple languages.
+
+```ts
+const resource = getResource(req)
+```
+
+The project supports:
+- English
+- Vietnamese
+
+Localization resources are located under:
+
+```text
+src/resources/
+```
+
+Validation messages automatically use the selected language.
+
+This is a nice feature that many samples omit.
+
+New languages can be added without changing business logic.
+
+---
+
+# Validation
+
+Validation is handled by [**validation-core**](https://www.npmjs.com/package/validation-core), with rules defined in the model.
+
+```ts
+const resource = getResource(req)
+
+const errors = validate<User>(user, userModel, resource)
+```
+
+Validation rules are defined alongside the entity model rather than inside controllers.
+
+Examples include:
+
+- Required fields
+- Email validation
+- Length constraints
+- Pattern validation
+- Primary key validation
+
+Type validation is also integrated into routing through:
+```ts
+const checkUser = check(userModel)
+```
+and reinforced in controller methods. This shows both middleware-based and controller-level validation approaches.
+
+---
+
+# Logging
+
+The application uses MiddlewareLogger from [express-core-web](https://www.npmjs.com/package/express-core-web) together with [logger-core](https://www.npmjs.com/package/logger-core) for structured request logging. This provides a consistent logging strategy across the application.
+
+The sample uses structured request logging through **middleware-logging**.
+
+Middleware logging is configurable:
+
+- HTTP method
+- Request URL
+- Request
+- Response
+- Status code
+- Response size
+- Execution time
+
+It also propagates:
+- Request ID
+- Correlation ID
+
+which is useful in distributed systems.
+
+Sensitive request and response data can be masked before logging.
+
+---
+
+# Health Check
+
+The sample includes a health endpoint suitable for containerized deployments.
+
+The endpoint checks:
+- MongoDB connectivity
+
+They can easily be extended to include additional infrastructure services.
+
+Example response
+
+```json
+{
+  "status": "UP",
+  "details": {
+    "mongo": {
+      "status": "UP"
+    }
+  }
+}
+```
+
+---
+
+# Configuration
+
+Configuration is managed using [**config-plus**](https://www.npmjs.com/package/config-plus), merging:
+```text
+          Default Configuration
+                   │
+                   ▼
+Environment Configuration (SIT, UAT, PRD)
+                   │
+                   ▼
+   Environment Variables (process.env)
+                   │
+                   ▼
+          Final Configuration
+```
+
+Typical configuration includes:
+
+- HTTP server
+- MongoDB connection
+- Logging
+- Localization
+- Application settings
+
+Environment variables can override default values for different deployment environments.
+
+---
+
+# Adding a New Module
+
+Each business module follows the same structure.
+
+```text
+customer/
+    controller.ts
+    service.ts
+    repository.ts
+    customer.ts
+    index.ts
+```
+
+To add a new module:
+
+1. Define the entity model.
+2. Create the repository.
+3. Create the use case.
+4. Create the controller.
+5. Register routes.
+6. Add the controller to the application context.
+
+This consistent approach keeps the application modular and easy to maintain.
+
+---
+
+# Why This Sample?
+
+This project is designed to be the simplest SQL sample in the Core TS ecosystem.
+
+It demonstrates:
+
+- Explicit request processing
+- Layered architecture
+- Generic repositories
+- Reusable CRUD services
+- MongoDB integration
+- Structured logging
+- Request validation
+
+without introducing unnecessary complexity.
+
+It is an excellent starting point for developers who want to understand how the ecosystem works before adopting more advanced abstractions.
+
+---
+
+# Ecosystem Integration
+
+This sample demonstrates how several [**core-ts**](https://github.com/core-ts) libraries work together.
+
+| Library                                                                  | Purpose                                        |
+|--------------------------------------------------------------------------|------------------------------------------------|
+| [`express-core-web`](https://www.npmjs.com/package/express-core-web)     | Express utilities and REST helpers             |
+| [`middleware-logging`](https://www.npmjs.com/package/middleware-logging) | HTTP request and response logging              |
+| [`mongodb-kit`](https://www.npmjs.com/package/mongodb-kit)               | Generic MongoDB repositories                   |
+| [`onecore`](https://www.npmjs.com/package/onecore)                       | Generic CRUD use cases and common abstractions |
+| [`validation-core`](https://www.npmjs.com/package/validation-core)       | High-performance validation library            |
+| [`config-plus`](https://www.npmjs.com/package/config-plus)               | Configuration management                       |
+| [`health-service`](https://www.npmjs.com/package/health-service)         | Health endpoint                                |
+| [`logger-core`](https://www.npmjs.com/package/logger-core)               | Structured logging                             |
+
+Each library focuses on a single responsibility.
+
+That demonstrates the intended layering very well.
+
+---
+
+# Related Samples
+
+- [**sql-modular-sample**](https://github.com/source-code-template/sql-modular-sample) — SQL modular microservice using MySQL
+- [**sql-simple-modular-sample**](https://github.com/source-code-template/sql-simple-modular-sample) — SQL modular microservice using PosgreSQL
+- [**mongo-simple-modular-sample**](https://github.com/source-code-template/mongo-simple-modular-sample) — MongoDB modular microservice
+
+These samples share the same architecture, allowing developers to switch databases while keeping the application structure consistent.
+
+---
+
+# Design Goals
+
+- Simple
+- Lightweight
+- Modular
+- Database-independent
+- Enterprise-friendly
+- Production-ready
+- Explicit
+- Testable
+
+---
+
+# Strengths
+
+The project stands out for several reasons:
+- **Very explicit flow** from HTTP request to database.
+- **Clear layered architecture** with well-defined responsibilities.
+- **Minimal boilerplate** thanks to generic repositories and use cases.
+- **Database abstraction** through [`mongodb-kit`](https://www.npmjs.com/package/mongodb-kit) .
+- **Good observability** with structured logging and health checks.
+- **Simple dependency composition** without a DI container.
+
+---
+
+# API Design
+
+### health check
+
+To check if the service is available
+
+#### _Request:_ GET /health
+
+#### _Response:_
+
+```json
+{
+  "status": "UP",
+  "details": {
+    "mongo": {
+      "status": "UP"
+    }
+  }
+}
+```
+
+### Search users: Support both GET and POST
+
 #### POST /users/search
-##### *Request:* POST /users/search
+
+##### _Request:_ POST /users/search
+
 In the below sample, search users with these criteria:
+
 - get users of page "1", with page size "20"
 - email="tony": get users with email starting with "tony"
 - dateOfBirth between "min" and "max" (between 1953-11-16 and 1976-11-16)
 - sort by phone ascending, id descending
+
 ```json
 {
-    "page": 1,
-    "limit": 20,
-    "sort": "phone,-id",
-    "email": "tony",
-    "dateOfBirth": {
-        "min": "1953-11-16T00:00:00+07:00",
-        "max": "1976-11-16T00:00:00+07:00"
-    }
+  "page": 1,
+  "limit": 20,
+  "sort": "phone,-id",
+  "email": "tony",
+  "dateOfBirth": {
+    "min": "1953-11-16T00:00:00+07:00",
+    "max": "1976-11-16T00:00:00+07:00"
+  }
 }
 ```
+
 ##### GET /users/search?page=1&limit=2&email=tony&dateOfBirth.min=1953-11-16T00:00:00+07:00&dateOfBirth.max=1976-11-16T00:00:00+07:00&sort=phone,-id
+
 In this sample, search users with these criteria:
+
 - get users of page "1", with page size "20"
 - email="tony": get users with email starting with "tony"
 - dateOfBirth between "min" and "max" (between 1953-11-16 and 1976-11-16)
 - sort by phone ascending, id descending
 
-#### *Response:*
-- total: total of users, which is used to calculate numbers of pages at client 
+#### _Response:_
+
+- total: total of users, which is used to calculate numbers of pages at client
 - list: list of users
+
 ```json
 {
-    "list": [
-        {
-            "id": "ironman",
-            "username": "tony.stark",
-            "email": "tony.stark@gmail.com",
-            "phone": "0987654321",
-            "dateOfBirth": "1963-03-24T17:00:00Z"
-        }
-    ],
-    "total": 1
-}
-```
-
-## API Design
-### Common HTTP methods
-- GET: retrieve a representation of the resource
-- POST: create a new resource
-- PUT: update the resource
-- PATCH: perform a partial update of a resource, refer to [service](https://github.com/core-go/service) and [mongo](https://github.com/core-go/mongo)  
-- DELETE: delete a resource
-
-## API design for health check
-To check if the service is available.
-#### *Request:* GET /health
-#### *Response:*
-```json
-{
-    "status": "UP",
-    "details": {
-        "mongo": {
-            "status": "UP"
-        }
+  "list": [
+    {
+      "id": "ironman",
+      "username": "tony.stark",
+      "email": "tony.stark@gmail.com",
+      "phone": "0987654321",
+      "dateOfBirth": "1963-03-24T17:00:00Z"
     }
+  ],
+  "total": 1
 }
 ```
-
-## API design for users
-#### *Resource:* users
 
 ### Get all users
-#### *Request:* GET /users
-#### *Response:*
+
+#### _Request:_ GET /users
+
+#### _Response:_
+
 ```json
 [
-    {
-        "id": "spiderman",
-        "username": "peter.parker",
-        "email": "peter.parker@gmail.com",
-        "phone": "0987654321",
-        "dateOfBirth": "1962-08-25T16:59:59.999Z"
-    },
-    {
-        "id": "wolverine",
-        "username": "james.howlett",
-        "email": "james.howlett@gmail.com",
-        "phone": "0987654321",
-        "dateOfBirth": "1974-11-16T16:59:59.999Z"
-    }
+  {
+    "id": "spiderman",
+    "username": "peter.parker",
+    "email": "peter.parker@gmail.com",
+    "phone": "0987654321",
+    "dateOfBirth": "1962-08-25T16:59:59.999Z"
+  },
+  {
+    "id": "wolverine",
+    "username": "james.howlett",
+    "email": "james.howlett@gmail.com",
+    "phone": "0987654321",
+    "dateOfBirth": "1974-11-16T16:59:59.999Z"
+  }
 ]
 ```
 
 ### Get one user by id
-#### *Request:* GET /users/:id
+
+#### _Request:_ GET /users/:id
+
 ```shell
 GET /users/wolverine
 ```
-#### *Response:*
+
+#### _Response:_
+
 ```json
 {
-    "id": "wolverine",
-    "username": "james.howlett",
-    "email": "james.howlett@gmail.com",
-    "phone": "0987654321",
-    "dateOfBirth": "1974-11-16T16:59:59.999Z"
+  "id": "wolverine",
+  "username": "james.howlett",
+  "email": "james.howlett@gmail.com",
+  "phone": "0987654321",
+  "dateOfBirth": "1974-11-16T16:59:59.999Z"
 }
 ```
 
 ### Create a new user
-#### *Request:* POST /users 
+
+#### _Request:_ POST /users
+
 ```json
 {
+  "id": "wolverine",
+  "username": "james.howlett",
+  "email": "james.howlett@gmail.com",
+  "phone": "0987654321",
+  "dateOfBirth": "1974-11-16T16:59:59.999Z"
+}
+```
+
+#### _Response:_
+
+- status: configurable; 1: success, 0: duplicate key, 4: error
+
+```json
+{
+  "status": 1,
+  "value": {
     "id": "wolverine",
     "username": "james.howlett",
     "email": "james.howlett@gmail.com",
     "phone": "0987654321",
-    "dateOfBirth": "1974-11-16T16:59:59.999Z"
+    "dateOfBirth": "1974-11-16T00:00:00+07:00"
+  }
 }
 ```
-#### *Response:*
-- status: configurable; 1: success, 0: duplicate key, 4: error
-```json
-{
-    "status": 1,
-    "value": {
-        "id": "wolverine",
-        "username": "james.howlett",
-        "email": "james.howlett@gmail.com",
-        "phone": "0987654321",
-        "dateOfBirth": "1974-11-16T00:00:00+07:00"
-    }
-}
-```
-#### *Fail case sample:* 
+
+#### _Fail case sample:_
+
 - Request:
+
 ```json
 {
-    "id": "wolverine",
-    "username": "james.howlett",
-    "email": "james.howlett",
-    "phone": "0987654321a",
-    "dateOfBirth": "1974-11-16T16:59:59.999Z"
+  "id": "wolverine",
+  "username": "james.howlett",
+  "email": "james.howlett",
+  "phone": "0987654321a",
+  "dateOfBirth": "1974-11-16T16:59:59.999Z"
 }
 ```
+
 - Response: in this below sample, email and phone are not valid
+
 ```json
 {
-    "status": 4,
-    "errors": [
-        {
-            "field": "email",
-            "code": "email"
-        },
-        {
-            "field": "phone",
-            "code": "phone"
-        }
-    ]
+  "status": 4,
+  "errors": [
+    {
+      "field": "email",
+      "code": "email"
+    },
+    {
+      "field": "phone",
+      "code": "phone"
+    }
+  ]
 }
 ```
 
 ### Update one user by id
-#### *Request:* PUT /users/:id
+
+#### _Request:_ PUT /users/:id
+
 ```shell
 PUT /users/wolverine
 ```
+
 ```json
 {
+  "username": "james.howlett",
+  "email": "james.howlett@gmail.com",
+  "phone": "0987654321",
+  "dateOfBirth": "1974-11-16T16:59:59.999Z"
+}
+```
+
+#### _Response:_
+
+- status: configurable; 1: success, 0: duplicate key, 2: version error, 4: error
+
+```json
+{
+  "status": 1,
+  "value": {
+    "id": "wolverine",
     "username": "james.howlett",
     "email": "james.howlett@gmail.com",
     "phone": "0987654321",
-    "dateOfBirth": "1974-11-16T16:59:59.999Z"
-}
-```
-#### *Response:*
-- status: configurable; 1: success, 0: duplicate key, 2: version error, 4: error
-```json
-{
-    "status": 1,
-    "value": {
-        "id": "wolverine",
-        "username": "james.howlett",
-        "email": "james.howlett@gmail.com",
-        "phone": "0987654321",
-        "dateOfBirth": "1974-11-16T00:00:00+07:00"
-    }
+    "dateOfBirth": "1974-11-16T00:00:00+07:00"
+  }
 }
 ```
 
 ### Patch one user by id
+
 Perform a partial update of user. For example, if you want to update 2 fields: email and phone, you can send the request body of below.
-#### *Request:* PATCH /users/:id
+
+#### _Request:_ PATCH /users/:id
+
 ```shell
 PATCH /users/wolverine
 ```
+
 ```json
 {
-    "email": "james.howlett@gmail.com",
-    "phone": "0987654321"
+  "email": "james.howlett@gmail.com",
+  "phone": "0987654321"
 }
 ```
-#### *Response:*
+
+#### _Response:_
+
 - status: configurable; 1: success, 0: duplicate key, 2: version error, 4: error
+
 ```json
 {
-    "status": 1,
-    "value": {
-        "email": "james.howlett@gmail.com",
-        "phone": "0987654321"
-    }
+  "status": 1,
+  "value": {
+    "email": "james.howlett@gmail.com",
+    "phone": "0987654321"
+  }
 }
 ```
 
 ### Delete a new user by id
-#### *Request:* DELETE /users/:id
+
+#### _Request:_ DELETE /users/:id
+
 ```shell
 DELETE /users/wolverine
 ```
-#### *Response:* 1: success, 0: not found, -1: error
+
+#### _Response:_ 1: success, 0: not found, -1: error
+
 ```json
 1
 ```
 
-### health check
-To check if the service is available
-#### *Request:* GET /health
-#### *Response:*
-```json
-{
-    "status": "UP",
-    "details": {
-        "mongo": {
-            "status": "UP"
-        }
-    }
-}
-```
+---
+
+# How to build and run
+
+### `npm start`
+
+Runs the app in the development mode.
+
+### `npm run build`
+
+Builds the app for production to the `dist` folder.
+
+### `npm run prod`
+
+Runs the app for production in the `dist` folder.
+
+---
+
+# License
+
+MIT

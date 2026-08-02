@@ -1,7 +1,7 @@
 import { merge } from "config-plus"
 import dotenv from "dotenv"
-import express, { json } from "express"
-import { allow, MiddlewareLogger } from "express-core-web"
+import express, { json, Request } from "express"
+import { allow, MiddlewareLogger, SimpleMap } from "express-core-web"
 import http from "http"
 import { createLogger } from "logger-core"
 import { connectToDb } from "mongodb-kit"
@@ -12,12 +12,12 @@ import { route } from "./route"
 import dns from "dns"
 dns.setServers(["1.1.1.1", "8.8.8.8"])
 
+const logger = createLogger(config.log)
 dotenv.config()
 const cfg = merge(config, process.env, env, process.env.ENV)
 
 const app = express()
-const logger = createLogger(cfg.log)
-const middleware = new MiddlewareLogger(logger.info, cfg.middleware)
+const middleware = new MiddlewareLogger(logger.info, cfg.middleware, buildHeader)
 app.use(allow(cfg.allow), json(), middleware.log)
 
 connectToDb(`${cfg.mongo.uri}`, `${cfg.mongo.db}`)
@@ -29,3 +29,15 @@ connectToDb(`${cfg.mongo.uri}`, `${cfg.mongo.db}`)
     })
   })
   .catch((err) => console.log("Cannot connect to mongo: " + err))
+
+function buildHeader(req: Request, map: SimpleMap): SimpleMap {
+  const requestId = req.get("X-Request-ID")
+  if (requestId) {
+    map["requestId"] = requestId
+  }
+  const correlationId = req.get("X-Correlation-ID")
+  if (correlationId) {
+    map["correlationId"] = correlationId
+  }
+  return map
+}
