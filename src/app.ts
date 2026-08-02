@@ -1,26 +1,31 @@
-import { merge } from 'config-plus';
-import dotenv from 'dotenv';
-import express, { json } from 'express';
-import { allow, MiddlewareLogger } from 'express-ext';
-import http from 'http';
-import { createLogger } from 'logger-core';
-import { connectToDb } from 'mongodb-extension';
-import { config, env } from './config';
-import { useContext } from './context';
-import { route } from './route';
+import { merge } from "config-plus"
+import dotenv from "dotenv"
+import express, { json } from "express"
+import { allow, MiddlewareLogger } from "express-core-web"
+import http from "http"
+import { createLogger } from "logger-core"
+import { connectToDb } from "mongodb-kit"
+import { config, env } from "./config"
+import { useContext } from "./context"
+import { route } from "./route"
 
-dotenv.config();
-const conf = merge(config, process.env, env, process.env.ENV);
+import dns from "dns"
+dns.setServers(["1.1.1.1", "8.8.8.8"])
 
-const app = express();
-const logger = createLogger(conf.log);
-const middleware = new MiddlewareLogger(logger.info, conf.middleware);
-app.use(allow(conf.allow), json(), middleware.log);
+dotenv.config()
+const cfg = merge(config, process.env, env, process.env.ENV)
 
-connectToDb(`${conf.mongo.uri}`, `${conf.mongo.db}`).then(db => {
-  const ctx = useContext(db, logger, middleware);
-  route(app, ctx);
-  http.createServer(app).listen(conf.port, () => {
-    console.log('Start mongo server at port ' + conf.port);
-  });
-}).catch(err => console.log('Cannot connect to mongo: ' + err));
+const app = express()
+const logger = createLogger(cfg.log)
+const middleware = new MiddlewareLogger(logger.info, cfg.middleware)
+app.use(allow(cfg.allow), json(), middleware.log)
+
+connectToDb(`${cfg.mongo.uri}`, `${cfg.mongo.db}`)
+  .then((db) => {
+    const ctx = useContext(db, logger, middleware)
+    route(app, ctx)
+    http.createServer(app).listen(cfg.port, () => {
+      console.log("Start mongo server at port " + cfg.port)
+    })
+  })
+  .catch((err) => console.log("Cannot connect to mongo: " + err))
