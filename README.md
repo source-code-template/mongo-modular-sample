@@ -129,7 +129,8 @@ export class UserUseCase
 Responsible for database access.
 
 ```ts
-export class MongoUserRepository extends Repository<User, string, UserFilter> implements UserRepository {
+export class MongoUserRepository
+    extends Repository<User, string, UserFilter> implements UserRepository {
   constructor(db: Db) {
     super(db, "users", userModel)
   }
@@ -167,7 +168,7 @@ Validation rules are centralized using [**validation-core**](https://www.npmjs.c
 Dependencies are wired explicitly rather than using a dependency injection framework.
 
 ```text
-  MongoDB
+ MongoDB
     │
     ▼
 Repository
@@ -275,9 +276,9 @@ and reinforced in controller methods. This shows both middleware-based and contr
 
 # Logging
 
-The application uses MiddlewareLogger from [express-web-kit](https://www.npmjs.com/package/express-web-kit) together with [logger-core](https://www.npmjs.com/package/logger-core) for structured request logging. This provides a consistent logging strategy across the application.
+The application uses MiddlewareLogger from [middleware-logging](https://www.npmjs.com/package/middleware-logging) together with [logger-core](https://www.npmjs.com/package/logger-core) for structured request logging. This provides a consistent logging strategy across the application.
 
-The sample uses structured request logging through **middleware-logging**.
+The sample uses structured request logging through [**middleware-logging**](https://www.npmjs.com/package/middleware-logging).
 
 Middleware logging is configurable:
 
@@ -388,11 +389,11 @@ It demonstrates:
 
 - Explicit request processing
 - Layered architecture
-- Generic repositories
-- Reusable CRUD services
-- MongoDB integration
 - Structured logging
 - Request validation
+- Reusable CRUD services
+- Generic repositories
+- MongoDB integration
 
 without introducing unnecessary complexity.
 
@@ -408,12 +409,12 @@ This sample demonstrates how several [**core-ts**](https://github.com/core-ts) l
 | ------------------------------------------------------------------------ | ---------------------------------------------- |
 | [`express-web-kit`](https://www.npmjs.com/package/express-web-kit)       | Express utilities and REST helpers             |
 | [`middleware-logging`](https://www.npmjs.com/package/middleware-logging) | HTTP request and response logging              |
-| [`mongodb-kit`](https://www.npmjs.com/package/mongodb-kit)               | Generic MongoDB repositories                   |
-| [`onecore`](https://www.npmjs.com/package/onecore)                       | Generic CRUD use cases and common abstractions |
 | [`validation-core`](https://www.npmjs.com/package/validation-core)       | High-performance validation library            |
-| [`config-plus`](https://www.npmjs.com/package/config-plus)               | Configuration management                       |
+| [`onecore`](https://www.npmjs.com/package/onecore)                       | Generic CRUD use cases and common abstractions |
+| [`mongodb-kit`](https://www.npmjs.com/package/mongodb-kit)               | Generic MongoDB repositories                   |
 | [`health-service`](https://www.npmjs.com/package/health-service)         | Health endpoint                                |
 | [`logger-core`](https://www.npmjs.com/package/logger-core)               | Structured logging                             |
+| [`config-plus`](https://www.npmjs.com/package/config-plus)               | Configuration management                       |
 
 Each library focuses on a single responsibility.
 
