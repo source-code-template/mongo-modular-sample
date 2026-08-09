@@ -412,7 +412,6 @@ This sample demonstrates how several [**core-ts**](https://github.com/core-ts) l
 | [`validation-core`](https://www.npmjs.com/package/validation-core)       | High-performance validation library            |
 | [`onecore`](https://www.npmjs.com/package/onecore)                       | Generic CRUD use cases and common abstractions |
 | [`mongodb-kit`](https://www.npmjs.com/package/mongodb-kit)               | Generic MongoDB repositories                   |
-| [`health-service`](https://www.npmjs.com/package/health-service)         | Health endpoint                                |
 | [`logger-core`](https://www.npmjs.com/package/logger-core)               | Structured logging                             |
 | [`config-plus`](https://www.npmjs.com/package/config-plus)               | Configuration management                       |
 
