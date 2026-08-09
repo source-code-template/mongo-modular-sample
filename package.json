@@ -4,9 +4,10 @@
   "description": "",
   "main": "app",
   "scripts": {
-    "start": "node dist/app",
+    "start": "nodemon --exec ts-node-dev src/app",
     "dev": "nodemon --exec ts-node-dev src/app",
     "build": "webpack --config webpack.config.js",
+    "prod": "node dist/app",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "keywords": [],
@@ -15,11 +16,12 @@
     "config-plus": "^0.1.1",
     "dotenv": "^17.4.2",
     "express": "^5.2.1",
-    "express-core-web": "^0.1.5",
-    "logger-core": "^0.5.1",
+    "express-web-kit": "^0.0.3",
+    "logger-core": "^0.5.2",
+    "middleware-logging": "^0.1.0",
     "mongodb": "7.5.0",
     "mongodb-kit": "^0.0.2",
-    "onecore": "^0.5.17",
+    "onecore": "^0.6.2",
     "validation-core": "^1.1.1"
   },
   "devDependencies": {
@@ -28,9 +30,9 @@
     "ts-loader": "^9.6.2",
     "ts-node-dev": "^2.0.0",
     "typescript": "^6.0.3",
-    "webpack": "^5.108.4",
+    "webpack": "^5.109.2",
     "webpack-bundle-analyzer": "^5.3.1",
-    "webpack-cli": "^7.2.1",
+    "webpack-cli": "^7.2.2",
     "webpack-dev-server": "^6.0.0"
   }
 }

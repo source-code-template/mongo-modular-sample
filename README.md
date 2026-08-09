@@ -63,7 +63,7 @@ Core TS libraries:
 - [config-plus](https://www.npmjs.com/package/config-plus)
 - [logger-core](https://www.npmjs.com/package/logger-core)
 - [middleware-logging](https://www.npmjs.com/package/middleware-logging)
-- [express-core-web](https://www.npmjs.com/package/express-core-web)
+- [express-web-kit](https://www.npmjs.com/package/express-web-kit)
 - [types-validation](https://www.npmjs.com/package/types-validation)
 - [validation-core](https://www.npmjs.com/package/validation-core)
 - [mongodb-kit](https://www.npmjs.com/package/mongodb-kit)
@@ -225,6 +225,7 @@ const resource = getResource(req)
 ```
 
 The project supports:
+
 - English
 - Vietnamese
 
@@ -263,16 +264,18 @@ Examples include:
 - Primary key validation
 
 Type validation is also integrated into routing through:
+
 ```ts
 const checkUser = check(userModel)
 ```
+
 and reinforced in controller methods. This shows both middleware-based and controller-level validation approaches.
 
 ---
 
 # Logging
 
-The application uses MiddlewareLogger from [express-core-web](https://www.npmjs.com/package/express-core-web) together with [logger-core](https://www.npmjs.com/package/logger-core) for structured request logging. This provides a consistent logging strategy across the application.
+The application uses MiddlewareLogger from [express-web-kit](https://www.npmjs.com/package/express-web-kit) together with [logger-core](https://www.npmjs.com/package/logger-core) for structured request logging. This provides a consistent logging strategy across the application.
 
 The sample uses structured request logging through **middleware-logging**.
 
@@ -287,6 +290,7 @@ Middleware logging is configurable:
 - Execution time
 
 It also propagates:
+
 - Request ID
 - Correlation ID
 
@@ -301,6 +305,7 @@ Sensitive request and response data can be masked before logging.
 The sample includes a health endpoint suitable for containerized deployments.
 
 The endpoint checks:
+
 - MongoDB connectivity
 
 They can easily be extended to include additional infrastructure services.
@@ -323,6 +328,7 @@ Example response
 # Configuration
 
 Configuration is managed using [**config-plus**](https://www.npmjs.com/package/config-plus), merging:
+
 ```text
           Default Configuration
                    │
@@ -399,8 +405,8 @@ It is an excellent starting point for developers who want to understand how the 
 This sample demonstrates how several [**core-ts**](https://github.com/core-ts) libraries work together.
 
 | Library                                                                  | Purpose                                        |
-|--------------------------------------------------------------------------|------------------------------------------------|
-| [`express-core-web`](https://www.npmjs.com/package/express-core-web)     | Express utilities and REST helpers             |
+| ------------------------------------------------------------------------ | ---------------------------------------------- |
+| [`express-web-kit`](https://www.npmjs.com/package/express-web-kit)       | Express utilities and REST helpers             |
 | [`middleware-logging`](https://www.npmjs.com/package/middleware-logging) | HTTP request and response logging              |
 | [`mongodb-kit`](https://www.npmjs.com/package/mongodb-kit)               | Generic MongoDB repositories                   |
 | [`onecore`](https://www.npmjs.com/package/onecore)                       | Generic CRUD use cases and common abstractions |
@@ -441,6 +447,7 @@ These samples share the same architecture, allowing developers to switch databas
 # Strengths
 
 The project stands out for several reasons:
+
 - **Very explicit flow** from HTTP request to database.
 - **Clear layered architecture** with well-defined responsibilities.
 - **Minimal boilerplate** thanks to generic repositories and use cases.
