@@ -24,6 +24,45 @@ Unlike the more opinionated samples, this project keeps the request-processing f
 
 ---
 
+## Available Scripts
+
+### `npm start`
+
+Runs the app in the development mode.
+
+### `npm run build`
+
+Builds the app for production to the `dist` folder.
+
+### `npm run prod`
+
+Runs the app for production in the `dist` folder.
+
+### Build the Docker Image
+
+```shell
+docker build -t sql-simple-modular-sample .
+```
+
+### Test the Docker Image
+
+```shell
+docker run -p 8080:8080 sql-simple-modular-sample
+```
+
+### Deploy to Cloud Run
+
+```shell
+gcloud run deploy mongo-simple-service \
+--image us-central1-docker.pkg.dev/<your-project-id>/node-repo/mongo-simple-modular-sample \
+--platform managed \
+--region us-central1 \
+--allow-unauthenticated \
+--port 8080 \
+```
+
+---
+
 # Architecture
 
 ![Architecture](https://cdn-images-1.medium.com/max/800/1*JDYTlK00yg0IlUjZ9-sp7Q.png)
@@ -84,10 +123,10 @@ src
 ├── resources/             # Localization resources
 │
 └── user/
-    ├── controller.ts
-    ├── service.ts
-    ├── repository.ts
     ├── user.ts
+    ├── repository.ts
+    ├── service.ts
+    ├── controller.ts
     └── index.ts
 ```
 
@@ -207,7 +246,7 @@ Validate Model
   Repository
       │
       ▼
-    MongoDB
+   MongoDB
       │
       ▼
 HTTP Response
@@ -317,7 +356,7 @@ Example response
 {
   "status": "UP",
   "details": {
-    "mongo": {
+    "mongodb": {
       "status": "UP"
     }
   }
@@ -451,7 +490,7 @@ The project stands out for several reasons:
 - **Very explicit flow** from HTTP request to database.
 - **Clear layered architecture** with well-defined responsibilities.
 - **Minimal boilerplate** thanks to generic repositories and use cases.
-- **Database abstraction** through [`mongodb-kit`](https://www.npmjs.com/package/mongodb-kit) .
+- **Database abstraction** through [`mongodb-kit`](https://www.npmjs.com/package/mongodb-kit).
 - **Good observability** with structured logging and health checks.
 - **Simple dependency composition** without a DI container.
 
@@ -471,7 +510,7 @@ To check if the service is available
 {
   "status": "UP",
   "details": {
-    "mongo": {
+    "mongodb": {
       "status": "UP"
     }
   }

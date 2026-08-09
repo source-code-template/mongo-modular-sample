@@ -1,0 +1,25 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: mongo-app2
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: mongo-app2
+  template:
+    metadata:
+      labels:
+        app: mongo-app2
+    spec:
+      containers:
+        - name: mongo-app
+          image: asia-east1-docker.pkg.dev/academic-moon-454710-r7/docker-repo/mongo-app
+          ports:
+            - containerPort: 8080
+          env:
+            - name: MONGO_URI
+              valueFrom:
+                secretKeyRef:
+                  name: mongo-secret
+                  key: uri
