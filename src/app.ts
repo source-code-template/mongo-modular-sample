@@ -4,22 +4,18 @@ import express, { json, Request } from "express"
 import { allow, toString } from "express-web-kit"
 import http from "http"
 import { createLogger } from "logger-core"
-import { mask, MiddlewareLogger } from "middleware-logging"
+import { Context, mask, MiddlewareLogger } from "middleware-logging"
 import { connectToDb } from "mongodb-kit"
-import { SimpleMap } from "onecore"
 import { config, env } from "./config"
 import { useContext } from "./context"
 import { route } from "./route"
-
-import dns from "dns"
-dns.setServers(["1.1.1.1", "8.8.8.8"])
 
 const logger = createLogger(config.log)
 dotenv.config()
 const cfg = merge(config, process.env, env, process.env.ENV)
 
 const app = express()
-const middleware = new MiddlewareLogger(logger.info, cfg.middleware, buildHeader, encryptResponse, encryptRequest)
+const middleware = new MiddlewareLogger(logger.info, cfg.middleware, buildContext, encryptResponse, encryptRequest)
 app.use(allow(cfg.allow), json(), middleware.log)
 
 connectToDb(`${cfg.mongo.uri}`, `${cfg.mongo.db}`)
@@ -32,16 +28,10 @@ connectToDb(`${cfg.mongo.uri}`, `${cfg.mongo.db}`)
   })
   .catch((err) => console.log("Cannot connect to mongo: " + err))
 
-function buildHeader(req: Request, map: SimpleMap): SimpleMap {
-  const requestId = req.get("X-Request-ID")
-  if (requestId) {
-    map["requestId"] = requestId
-  }
-  const correlationId = req.get("X-Correlation-ID")
-  if (correlationId) {
-    map["correlationId"] = correlationId
-  }
-  return map
+function buildContext(req: Request, context: Context): Context {
+  context.requestId = req.header("X-Request-ID") ?? ""
+  context.correlationId = req.header("X-Correlation-ID") ?? ""
+  return context
 }
 function encryptResponse(rs: string): string {
   try {
