@@ -113,21 +113,27 @@ Core TS libraries:
 # Project Structure
 
 ```text
-src
-│
-├── app.ts                 # Application bootstrap
-├── config.ts              # Application configuration
-├── context.ts             # Dependency composition
-├── route.ts               # Route registration
-│
-├── resources/             # Localization resources
-│
-└── user/
-    ├── user.ts
-    ├── repository.ts
-    ├── service.ts
-    ├── controller.ts
-    └── index.ts
+.
+├── AGENTS.md                  # Instructions for AI coding agents
+├── README.md                  # Human-facing project overview
+├── docs/
+│   ├── API.md                 # Implemented HTTP endpoints and observed behavior
+│   ├── ARCHITECTURE.md        # Startup, dependency flow, and feature structure
+│   ├── CODING_CONVENTIONS.md  # Naming, file layout, and implementation patterns
+│   ├── DATABASE.md            # Actual MongoDB usage and supplied PostgreSQL schema
+│   └── DEVELOPMENT.md        # Setup, scripts, configuration, and known caveats
+└── src/
+    ├── app.ts        # Application bootstrap
+    ├── config.ts     # Application configuration
+    ├── context.ts    # Dependency composition
+    ├── route.ts      # Route registration
+    ├── resources/    # Localization resources
+    └── user/
+        ├── user.ts
+        ├── repository.ts
+        ├── service.ts
+        ├── controller.ts
+        └── index.ts
 ```
 
 Each business feature is organized into its own module, making the project easy to extend and maintain.
@@ -168,8 +174,7 @@ export class UserUseCase
 Responsible for database access.
 
 ```ts
-export class MongoUserRepository
-    extends Repository<User, string, UserFilter> implements UserRepository {
+export class MongoUserRepository extends Repository<User, string, UserFilter> implements UserRepository {
   constructor(db: Db) {
     super(db, "users", userModel)
   }
@@ -780,3 +785,151 @@ Runs the app for production in the `dist` folder.
 # License
 
 MIT
+
+# Mongo Simple Modular Sample
+
+A small TypeScript application demonstrating a modular Express API with a MongoDB-backed `user` feature. It uses a controller / use-case / repository separation and shared libraries from the `core-ts` ecosystem.
+
+> **Database clarification:** The checked-in source currently uses MongoDB (`mongodb` and `mongodb-kit`). The PostgreSQL DDL supplied alongside this project is documented in [docs/DATABASE.md](docs/DATABASE.md), but it is not implemented by the current application. Do not assume that the SQL tables are available through the current repository layer.
+
+## What is implemented
+
+- Express application startup and middleware setup.
+- MongoDB connection and health check.
+- Request/correlation ID propagation into the logging context.
+- Request/response masking for top-level `phone` and `email` fields in the logging middleware hooks.
+- Runtime log and middleware configuration endpoints.
+- English and Vietnamese validation resources.
+- User search, load, create, update, patch, and delete endpoints.
+
+Only the `user` feature has an application module in the supplied source. Company ratings, jobs, articles, follows, saved items, and the other SQL domains are present only in the supplied database design; no corresponding TypeScript feature modules were found.
+
+## Technology
+
+- TypeScript 6, strict mode
+- Node.js and Express 5
+- MongoDB Node.js driver 7 and `mongodb-kit`
+- `onecore` for generic use-case and model types
+- `validation-core` for model validation
+- `express-web-kit` and `middleware-logging` for HTTP helpers and middleware
+- Webpack for production bundling
+
+Versions above reflect the supplied `package.json` / lockfile, not a compatibility guarantee for other environments.
+
+## Project layout
+
+```text
+.
+├── AGENTS.md                  # Instructions for AI coding agents
+├── README.md                  # Human-facing project overview
+├── docs/
+│   ├── API.md                 # Implemented HTTP endpoints and observed behavior
+│   ├── ARCHITECTURE.md        # Startup, dependency flow, and feature structure
+│   ├── CODING_CONVENTIONS.md  # Naming, file layout, and implementation patterns
+│   ├── DATABASE.md            # Actual MongoDB usage and supplied PostgreSQL schema
+│   └── DEVELOPMENT.md        # Setup, scripts, configuration, and known caveats
+└── src/
+    ├── app.ts        # Application bootstrap
+    ├── config.ts     # Application configuration
+    ├── context.ts    # Dependency composition
+    ├── route.ts      # Route registration
+    ├── resources/    # Localization resources
+    └── user/
+        ├── user.ts
+        ├── repository.ts
+        ├── service.ts
+        ├── controller.ts
+        └── index.ts
+```
+
+## Run locally
+
+### Requirements
+
+- A Node.js runtime compatible with the dependencies in `package-lock.json`.
+- Access to a MongoDB instance.
+
+### Configure environment
+
+Create a local `.env` file in the project root. Do not commit credentials.
+
+```dotenv
+MONGO_URI=mongodb://localhost:27017
+MONGO_DB=masterdata
+ENV=sit
+```
+
+`MONGO_URI` and `MONGO_DB` are read through the environment merge in `src/app.ts`. `ENV` is used to select a profile from the `env` object in `src/config.ts`; the source currently defines `sit` and `prd` profiles. Review `config-plus` merge semantics before changing profile precedence.
+
+The checked-in `src/config.ts` also contains a hard-coded MongoDB connection fallback. Replace that value with an environment-only configuration before using the project outside a disposable/demo environment. Never copy credentials from the source or `.env` into documentation, logs, examples, or commits.
+
+### Install and start
+
+```bash
+npm ci
+npm run dev
+```
+
+The application connects to MongoDB before registering routes and starting the HTTP listener. The default configured port is `8080`.
+
+### Build and run the bundled app
+
+```bash
+npm run build
+npm run prod
+```
+
+Webpack targets Node.js and writes `dist/app.js`. The `prod` script starts `dist/app` after the build.
+
+### Available scripts
+
+| Script  | Command                              | Purpose                                             |
+| ------- | ------------------------------------ | --------------------------------------------------- |
+| `start` | `nodemon --exec ts-node-dev src/app` | Development-style startup                           |
+| `dev`   | `nodemon --exec ts-node-dev src/app` | Development startup with restart support            |
+| `build` | `webpack --config webpack.config.js` | Bundle the server application                       |
+| `prod`  | `node dist/app`                      | Run the built application                           |
+| `test`  | placeholder command                  | No test suite is configured in the supplied project |
+
+## Implemented HTTP endpoints
+
+| Method        | Path            | Purpose                                   |
+| ------------- | --------------- | ----------------------------------------- |
+| `GET`         | `/health`       | Health check, including MongoDB checker   |
+| `PATCH`       | `/log`          | Configure logging through `LogController` |
+| `PATCH`       | `/middleware`   | Configure request middleware logging      |
+| `GET`, `POST` | `/users/search` | Search users                              |
+| `GET`         | `/users/:id`    | Load one user                             |
+| `POST`        | `/users`        | Create a user                             |
+| `PUT`         | `/users/:id`    | Replace/update a user                     |
+| `PATCH`       | `/users/:id`    | Partially update a user                   |
+| `DELETE`      | `/users/:id`    | Delete a user                             |
+
+See [docs/API.md](docs/API.md) for the behavior visible in the controllers, including status-code choices.
+
+## How a feature is structured
+
+The existing `user` feature is the reference implementation:
+
+1. `user.ts` declares domain interfaces, repository/service contracts, and the validation model.
+2. `repository.ts` adapts MongoDB through `mongodb-kit`.
+3. `service.ts` extends the generic `UseCase` from `onecore`.
+4. `controller.ts` handles Express requests, validation, status codes, and errors.
+5. `index.ts` constructs and exports the feature controller.
+6. `context.ts` adds the controller to `ApplicationContext`.
+7. `route.ts` maps HTTP methods and paths to controller methods.
+
+Read [AGENTS.md](AGENTS.md) before asking an AI agent to change or extend the project. The detailed patterns are in [docs/ARCHITECTURE.md](docs/ARCHITECTURE.md) and [docs/CODING_CONVENTIONS.md](docs/CODING_CONVENTIONS.md).
+
+## Database design supplied with this project
+
+The supplied SQL describes a PostgreSQL-oriented product domain covering users, profiles, follows, skills/interests, categories/content, jobs, articles, saved items, and company/article ratings. It is catalogued in [docs/DATABASE.md](docs/DATABASE.md).
+
+That design and the current implementation are not interchangeable:
+
+- Runtime connection: MongoDB.
+- Implemented persistence adapter: `MongoUserRepository` for the `users` collection.
+- Supplied relational design: PostgreSQL DDL / seed statements, not connected to the current code.
+- The current `User` TypeScript interface is much smaller than the SQL `users` table.
+
+Before implementing a feature against the supplied SQL tables, decide explicitly whether the application is being migrated to PostgreSQL or whether the schema is reference/domain documentation while MongoDB remains the target. Do not silently mix the two approaches.

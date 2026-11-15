@@ -16,7 +16,7 @@ export interface UserFilter extends Filter {
 }
 
 export interface UserRepository {
-  search(filter: UserFilter, limit: number, page?: number | string, fields?: string[]): Promise<SearchResult<User>>
+  search(filter: UserFilter, limit: number, page?: number, fields?: string[]): Promise<SearchResult<User>>
   load(id: string): Promise<User | null>
   create(user: User): Promise<number>
   update(user: User): Promise<number>
@@ -24,7 +24,7 @@ export interface UserRepository {
   delete(id: string): Promise<number>
 }
 export interface UserService {
-  search(filter: UserFilter, limit: number, page?: number | string, fields?: string[]): Promise<SearchResult<User>>
+  search(filter: UserFilter, limit: number, page?: number, fields?: string[]): Promise<SearchResult<User>>
   load(id: string): Promise<User | null>
   create(user: User): Promise<Result<User>>
   update(user: User): Promise<Result<User>>
